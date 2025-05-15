@@ -1,287 +1,305 @@
-# Experiment 3: DML Commands
+# Experiment 2: DDL Commands
 
 ## AIM
-To study and implement DML (Data Manipulation Language) commands.
+To study and implement DDL commands and different types of constraints.
 
 ## THEORY
 
-### 1. INSERT INTO
-Used to add records into a relation.
-These are three type of INSERT INTO queries which are as
-A)Inserting a single record
-**Syntax (Single Row):**
-```sql
-INSERT INTO table_name (field_1, field_2, ...) VALUES (value_1, value_2, ...);
-```
-**Syntax (Multiple Rows):**
-```sql
-INSERT INTO table_name (field_1, field_2, ...) VALUES
-(value_1, value_2, ...),
-(value_3, value_4, ...);
-```
-**Syntax (Insert from another table):**
-```sql
-INSERT INTO table_name SELECT * FROM other_table WHERE condition;
-```
-### 2. UPDATE
-Used to modify records in a relation.
-Syntax:
-```sql
-UPDATE table_name SET column1 = value1, column2 = value2 WHERE condition;
-```
-### 3. DELETE
-Used to delete records from a relation.
-**Syntax (All rows):**
-```sql
-DELETE FROM table_name;
-```
-**Syntax (Specific condition):**
-```sql
-DELETE FROM table_name WHERE condition;
-```
-### 4. SELECT
-Used to retrieve records from a table.
+### 1. CREATE
+Used to create a new relation (table).
+
 **Syntax:**
 ```sql
-SELECT column1, column2 FROM table_name WHERE condition;
+CREATE TABLE (
+  field_1 data_type(size),
+  field_2 data_type(size),
+  ...
+);
 ```
+### 2. ALTER
+Used to add, modify, drop, or rename fields in an existing relation.
+(a) ADD
+```sql
+ALTER TABLE std ADD (Address CHAR(10));
+```
+(b) MODIFY
+```sql
+ALTER TABLE relation_name MODIFY (field_1 new_data_type(size));
+```
+(c) DROP
+```sql
+ALTER TABLE relation_name DROP COLUMN field_name;
+```
+(d) RENAME
+```sql
+ALTER TABLE relation_name RENAME COLUMN old_field_name TO new_field_name;
+```
+### 3. DROP TABLE
+Used to permanently delete the structure and data of a table.
+```sql
+DROP TABLE relation_name;
+```
+### 4. RENAME
+Used to rename an existing database object.
+```sql
+RENAME TABLE old_relation_name TO new_relation_name;
+```
+### CONSTRAINTS
+Constraints are used to specify rules for the data in a table. If there is any violation between the constraint and the data action, the action is aborted by the constraint. It can be specified when the table is created (using CREATE TABLE) or after it is created (using ALTER TABLE).
+### 1. NOT NULL
+When a column is defined as NOT NULL, it becomes mandatory to enter a value in that column.
+Syntax:
+```sql
+CREATE TABLE Table_Name (
+  column_name data_type(size) NOT NULL
+);
+```
+### 2. UNIQUE
+Ensures that values in a column are unique.
+Syntax:
+```sql
+CREATE TABLE Table_Name (
+  column_name data_type(size) UNIQUE
+);
+```
+### 3. CHECK
+Specifies a condition that each row must satisfy.
+Syntax:
+```sql
+CREATE TABLE Table_Name (
+  column_name data_type(size) CHECK (logical_expression)
+);
+```
+### 4. PRIMARY KEY
+Used to uniquely identify each record in a table.
+Properties:
+Must contain unique values.
+Cannot be null.
+Should contain minimal fields.
+Syntax:
+```sql
+CREATE TABLE Table_Name (
+  column_name data_type(size) PRIMARY KEY
+);
+```
+### 5. FOREIGN KEY
+Used to reference the primary key of another table.
+Syntax:
+```sql
+CREATE TABLE Table_Name (
+  column_name data_type(size),
+  FOREIGN KEY (column_name) REFERENCES other_table(column)
+);
+```
+### 6. DEFAULT
+Used to insert a default value into a column if no value is specified.
+
+Syntax:
+```sql
+CREATE TABLE Table_Name (
+  col_name1 data_type,
+  col_name2 data_type,
+  col_name3 data_type DEFAULT 'default_value'
+);
+```
+
 **Question 1**
 --
-Write a SQL statement to double the availability of the product with product_id 1.
+Create a new table named item with the following specifications and constraints:
+    item_id as TEXT and as primary key.
+    item_desc as TEXT.
+    rate as INTEGER.
+    icom_id as TEXT with a length of 4.
+    icom_id is a foreign key referencing com_id in the company table.
+    The foreign key should set NULL on updates and deletes.
+    item_desc and rate should not accept NULL.
 
-products table
-```
----------------
-product_id
-product_name
-category_id
-availability
-```
 ```sql
-update products
-set availability = availability * 2
-where product_id = 1;
+CREATE TABLE item(
+    item_id TEXT PRIMARY KEY,
+    item_desc TEXT NOT NULL,
+    rate INTEGER NOT NULL,
+    icom_id TEXT CHECK(LENGTH(icom_id)=4),
+    FOREIGN KEY (icom_id) REFERENCES company(com_id)
+    ON DELETE SET NULL 
+    ON UPDATE SET NULL
+);
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/22995305-5814-41ba-a545-d2410f3789bb)
+![image](https://github.com/user-attachments/assets/2eebfa33-e414-40c2-9965-f774fbd762ca)
+
+
 
 **Question 2**
 ---
-Write a SQL statement to Double the salary for employees in department 20 who have a job_id ending with 'MAN'
+Insert all products from Discontinued_products into Products.
+Table attributes are ProductID, ProductName, Price, Stock
 
-Employees table
-```
----------------
-employee_id
-first_name
-last_name
-email
-phone_number
-hire_date
-job_id
-salary
-commission_pct
-manager_id
-department_id
-```
 ```sql
-update Employees 
-set SALARY = SALARY * 2 
-where job_id like "%MAN"
+insert into Products(ProductID, ProductName, Price, Stock)
+SELECT * FROM Discontinued_products; 
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/e66fb081-fc98-4845-870e-4e213068948f)
+![image](https://github.com/user-attachments/assets/7edc5ec7-c274-4173-9d29-be2f37264084)
+
 
 **Question 3**
 ---
-Write a SQL statement to Update the address to '58 Lakeview, Magnolia' where supplier ID is 5 in the suppliers table.
+Create a table named Employees with the following constraints:
 
-Suppliers Table 
-```
-name               type
------------------  ---------------
-supplier_id        INT
-supplier_name      VARCHAR(100)
-contact_person     VARCHAR(100)
-phone_number       VARCHAR(20)
-email              VARCHAR(100)
-address            VARCHAR(250)
-```
+EmployeeID should be the primary key.
+FirstName and LastName should be NOT NULL.
+Email should be unique.
+Salary should be greater than 0.
+DepartmentID should be a foreign key referencing the Departments table.
+
 ```sql
-update Suppliers
-set address = '58 Lakeview, Magnolia'
-where supplier_id=5
+create table Employees(
+EmployeeID int primary key,
+FirstName text not null,
+LastName text not null,
+Salary int check(salary>0),
+Email text unique,
+DepartmentID int,
+foreign key (DepartmentID) references Departments(DepartmentID)
+);
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/47556b01-6642-46e8-90e0-d47dc429b5e8)
+![image](https://github.com/user-attachments/assets/1adf1535-cc33-4e8c-bdb3-c13211382312)
+
 
 **Question 4**
 ---
-Write a SQL statement to change the email column of employees table with 'Unavailable' for all employees in employees table.
-
-Employees table
-```
----------------
-employee_id
-first_name
-last_name
-email
-phone_number
-hire_date
-job_id
-salary
-commission_pct
-manager_id
-department_id
-```
+Insert a student with RollNo 201, Name David Lee, Gender M, Subject Physics, and MARKS 92 into the Student_details table
 ```sql
-update Employees 
-set EMAIL = 'Unavailable'
+insert into Student_details(RollNo,Name,Gender,Subject,MARKS)values(201,'David Lee','M','Physics',92)
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/06e2e3cd-3308-4e05-a3e9-d174d180b16d)
+![image](https://github.com/user-attachments/assets/2e6a5949-c3e0-4840-a395-b7f35ba90b10)
 
 **Question 5**
 ---
 
-Decrease the reorder level by 30 percent where the product name contains 'cream' and quantity in stock is higher than reorder level in the products table.
+Create a table named Members with the following columns:
 
-PRODUCTS TABLE
-```
-name               type
------------------  ---------------
-product_id         INT
-product_name       VARCHAR(100)
-category           VARCHAR(50)
-cost_price         DECIMAL(10,2)
-sell_price         DECIMAL(10,2)
-reorder_lvl        INT
-quantity           INT
-supplier_id        INT
-```
+MemberID as INTEGER
+MemberName as TEXT
+JoinDate as DATE
+
 ```sql
-UPDATE  PRODUCTS 
-set reorder_lvl = reorder_lvl * 0.7
-where product_name like '%cream%' and quantity > reorder_lvl;
+create table Members(
+MemberID INTEGER,
+MemberName TEXT,
+JoinDate DATE);
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/0dac1f67-600d-4e7b-a9e2-b30506b15e22)
+![image](https://github.com/user-attachments/assets/b94e86a9-4b62-4e4a-b1fd-f93cf5b9d677)
 
 **Question 6**
 ---
-Write a SQL query to Delete customers from 'customer' table where 'CUST_CITY' is not 'New York' and 'OUTSTANDING_AMT' is greater than 5000.
+Write an SQL query to change the name of the column id to employee_id in the table employee.
 
-Sample table: Customer
-```
-+-----------+-------------+-------------+--------------+--------------+-------+-------------+-------------+-------------+---------------+--------------+------------+  
-|CUST_CODE  | CUST_NAME   | CUST_CITY   | WORKING_AREA | CUST_COUNTRY | GRADE | OPENING_AMT | RECEIVE_AMT | PAYMENT_AMT |OUTSTANDING_AMT| PHONE_NO     | AGENT_CODE |
-+-----------+-------------+-------------+--------------+--------------+-------+-------------+-------------+-------------+---------------+--------------+------------+
-| C00013    | Holmes      | London      | London       | UK           |     2 |     6000.00 |     5000.00 |     7000.00 |       4000.00 | BBBBBBB      | A003       |
-| C00001    | Micheal     | New York    | New York     | USA          |     2 |     3000.00 |     5000.00 |     2000.00 |       6000.00 | CCCCCCC      | A008       |
-| C00020    | Albert      | New York    | New York     | USA          |     3 |     5000.00 |     7000.00 |     6000.00 |       6000.00 |BBBBSBB      | A008       
-```
 ```sql
-delete FROM Customer
-where CUST_CITY <>'New York' and OUTSTANDING_AMT > 5000;
+alter table employee  rename id to employee_id; 
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/78864722-0448-4e14-81d5-e8622fad2ced)
+![image](https://github.com/user-attachments/assets/f03e7c20-39ca-4084-9ce8-a64981818a5b)
 
 **Question 7**
 ---
-Write a SQL query to Delete customers from 'customer' table where 'GRADE' is odd.
-
-Sample table: Customer
-```
-+-----------+-------------+-------------+--------------+--------------+-------+-------------+-------------+-------------+---------------+--------------+------------+  
-|CUST_CODE  | CUST_NAME   | CUST_CITY   | WORKING_AREA | CUST_COUNTRY | GRADE | OPENING_AMT | RECEIVE_AMT | PAYMENT_AMT |OUTSTANDING_AMT| PHONE_NO     | AGENT_CODE |
-+-----------+-------------+-------------+--------------+--------------+-------+-------------+-------------+-------------+---------------+--------------+------------+
-| C00013    | Holmes      | London      | London       | UK           |     2 |     6000.00 |     5000.00 |     7000.00 |       4000.00 | BBBBBBB      | A003       |
-| C00001    | Micheal     | New York    | New York     | USA          |     2 |     3000.00 |     5000.00 |     2000.00 |       6000.00 | CCCCCCC      | A008       |
-| C00020    | Albert      | New York    | New York     | USA          |     3 |     5000.00 |     7000.00 |     6000.00 |       6000.00 | BBBBSBB      | A008     
-```
+Create a table named Attendance with the following constraints:
+AttendanceID as INTEGER should be the primary key.
+EmployeeID as INTEGER should be a foreign key referencing Employees(EmployeeID).
+AttendanceDate as DATE.
+Status as TEXT should be one of 'Present', 'Absent', 'Leave'.
 ```sql
-delete from Customer
-where grade%2=1;
+create table Attendance(
+    AttendanceID INTEGER PRIMARY KEY,
+    EmployeeID INTEGER,
+    AttendanceDate DATE,
+    Status TEXT ,
+    foreign key (EmployeeID) references  Employees(EmployeeID),
+    CHECK(Status IN ('Present','Absent','Leave'))
+);
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/8a2ed82a-77c6-45ad-ba68-86ad9bf18f3a)
+![image](https://github.com/user-attachments/assets/a78faf98-d2de-4a5b-b892-219f87d96a7f)
 
 **Question 8**
 ---
-Write a SQL query to Delete All Doctors with a NULL Specialization
+Insert the following products into the Products table:
 
-Sample table: Doctors
-
-attributes : doctor_id, first_name, last_name, specialization
+Name        Category     Price       Stock<br/>
+----------  -----------  ----------  ----------<br/>
+Smartphone  Electronics  800         150<br/>
+Headphones  Accessories  200         300<br/>
 ```sql
-delete from Doctors
-where specialization is null;
+insert into Products(Name,Category,Price,Stock)values('Smartphone','Electronics',800,150),('Headphones','Accessories',200,300);
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/4d4af6a2-6a17-4d4c-974d-74d7586510e2)
+![image](https://github.com/user-attachments/assets/be52dd8d-1198-46a3-a0c0-42a01ce48691)
 
 **Question 9**
 ---
-Show the categoryName and description from the categories table sorted by categoryName.
-```
-name                     type
----------------       ---------------
-CategoryID           INTEGER
-CategoryName     VARCHAR(25)
-Description          VARCHAR(255)
-```
+
+Write a SQL query to add birth_date attribute as timestamp (datatype) in the table customer 
+
+Sample table: customer
+
+ customer_id |   cust_name    |    city    | grade | salesman_id <br/>
+-------------+----------------+------------+-------+-------------<br/>
+        3002 | Nick Rimando   | New York   |   100 |        5001<br/>
+        3007 | Brad Davis     | New York   |   200 |        5001<br/>
+        3005 | Graham Zusi    | California |   200 |        5002<br/>
+
 ```sql
-select CategoryName,Description from categories
-order by CategoryName ASC;
+alter table customer add birth_date timestamp;
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/d4041812-1932-4172-b8e1-e60c30d00330)
+![image](https://github.com/user-attachments/assets/b17d1491-6ca4-4208-9db7-c4f7390468e3)
 
 **Question 10**
 ---
-Write a SQL query to categorize value1 in the Calculations table as 'High' if it is greater than 50, otherwise 'Low'.
-```
-cid         name        type        notnull     dflt_value  pk
-----------  ----------  ----------  ----------  ----------  ----------
-0           id          INTEGER     0                       1
-1           value1      REAL        0                       0
-2           value2      REAL        0                       0
-3           base        INTEGER     0                       0
-4           exponent    INTEGER     0                       0
-5           number      REAL        0                       0
-6           decimal     REAL        0                       0
-```
+
+Write a SQL query to Add a new column Country as text in the Student_details table.
+
+Sample table: Student_details
+
+ cid              name             type   notnull     dflt_value  pk <br/>
+---------------  ---------------  -----  ----------  ----------  ----------<br/>
+0                RollNo           int    0                       1<br/>
+1                Name             VARCH  1                       0<br/>
+2                Gender           TEXT   1                       0<br/>
+3                Subject          VARCH  0                       0<br/>
+4                MARKS            INT (  0                       0<br/>
+
 ```sql
-select id,value1,
-    case
-        when value1 > 50 then 'High'
-        else 'Low'
-    end as value_category
-from Calculations;
+
+alter table Student_details add Country TEXT;
 ```
 
 **Output:**
 
-![image](https://github.com/user-attachments/assets/9d7ee5a6-d8af-433b-aa93-4911bcc16c4e)
+![image](https://github.com/user-attachments/assets/d77662df-626a-4c27-90d9-4f8487ba882e)
+
 
 ## RESULT
-Thus, the SQL queries to implement DML commands have been executed successfully.
+Thus, the SQL queries to implement different types of constraints and DDL commands have been executed successfully.
